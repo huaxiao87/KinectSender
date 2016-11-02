@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2015
+Project("{BBF477C1-08A5-03E2-245A-A2F0D33BDBCB}") = "Kinect", "Kinect.vcxproj", "{D8563012-3DB3-3B0F-8501-AA3A828985EC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D8563012-3DB3-3B0F-8501-AA3A828985EC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D8563012-3DB3-3B0F-8501-AA3A828985EC}.Debug|Win32.Build.0 = Debug|Win32
+		{D8563012-3DB3-3B0F-8501-AA3A828985EC}.Release|Win32.ActiveCfg = Release|Win32
+		{D8563012-3DB3-3B0F-8501-AA3A828985EC}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
