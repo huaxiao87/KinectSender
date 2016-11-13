@@ -21,7 +21,13 @@
 #define __JUCE_HEADER_F1E5D9BB3E654E28__
 
 //[Headers]     -- You can add your own extra header files here --
+#pragma once
+
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "resource.h"
+#include "kinect.h"
+#include <vector>
+
 //[/Headers]
 
 
@@ -35,7 +41,8 @@
                                                                     //[/Comments]
 */
 class GuiComponent  : public Component,
-                      public ButtonListener
+                      public ButtonListener,
+					  public Thread
 {
 public:
     //==============================================================================
@@ -44,6 +51,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void run();
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -53,33 +61,47 @@ public:
     // Binary resources:
     static const char* _7_png;
     static const int _7_pngSize;
+    static const char* kinect2_png;
+    static const int kinect2_pngSize;
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+	void update();
+	HRESULT InitializeDefaultSensor();
+
+	ScopedPointer<bool> joints_availability;
+	// Current Kinect
+	IKinectSensor*          m_pKinectSensor;
+	ICoordinateMapper*      m_pCoordinateMapper;
+
+	// Body reader
+	IBodyFrameReader*       m_pBodyFrameReader;
+
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ToggleButton> toggleButton8;
-    ScopedPointer<ToggleButton> toggleButton2;
-    ScopedPointer<ToggleButton> toggleButton3;
-    ScopedPointer<ToggleButton> toggleButton4;
-    ScopedPointer<ToggleButton> toggleButton5;
-    ScopedPointer<ToggleButton> toggleButton6;
-    ScopedPointer<ToggleButton> toggleButton7;
-    ScopedPointer<ToggleButton> toggleButton9;
-    ScopedPointer<ToggleButton> toggleButton10;
-    ScopedPointer<ToggleButton> toggleButton11;
-    ScopedPointer<ToggleButton> toggleButton12;
-    ScopedPointer<ToggleButton> toggleButton13;
-    ScopedPointer<ToggleButton> toggleButton14;
-    ScopedPointer<ToggleButton> toggleButton15;
-    ScopedPointer<ToggleButton> toggleButton16;
-    ScopedPointer<ToggleButton> toggleButton17;
-    ScopedPointer<ToggleButton> toggleButton18;
-    ScopedPointer<ToggleButton> toggleButton19;
-    ScopedPointer<ToggleButton> toggleButton20;
-    ScopedPointer<ToggleButton> toggleButton21;
+    ScopedPointer<ToggleButton> neck;
+    ScopedPointer<ToggleButton> hipLeft;
+    ScopedPointer<ToggleButton> handLeft;
+    ScopedPointer<ToggleButton> handRight;
+    ScopedPointer<ToggleButton> wristRight;
+    ScopedPointer<ToggleButton> spineBase;
+    ScopedPointer<ToggleButton> spineShoulder;
+    ScopedPointer<ToggleButton> head;
+    ScopedPointer<ToggleButton> wristLeft;
+    ScopedPointer<ToggleButton> elbowRight;
+    ScopedPointer<ToggleButton> shoulderLeft;
+    ScopedPointer<ToggleButton> shoulderRight;
+    ScopedPointer<ToggleButton> spineMid;
+    ScopedPointer<ToggleButton> elbowLeft;
+    ScopedPointer<ToggleButton> ankleRight;
+    ScopedPointer<ToggleButton> kneeLeft;
+    ScopedPointer<ToggleButton> footLeft;
+    ScopedPointer<ToggleButton> ankleLeft;
+    ScopedPointer<ToggleButton> hipRight;
+    ScopedPointer<ToggleButton> kneeRight;
     ScopedPointer<TextEditor> textEditor;
     ScopedPointer<Label> label;
     ScopedPointer<Label> label2;
@@ -88,7 +110,12 @@ private:
     ScopedPointer<TextButton> textButton2;
     ScopedPointer<TextButton> textButton3;
     ScopedPointer<TextButton> textButton4;
-    Image cachedImage__7_png_1;
+    ScopedPointer<ToggleButton> footRight;
+    ScopedPointer<ToggleButton> handTipLeft;
+    ScopedPointer<ToggleButton> thumbLeft;
+    ScopedPointer<ToggleButton> handTipRight;
+    ScopedPointer<ToggleButton> thumbRight;
+    Image cachedImage_kinect2_png_1;
 
 
     //==============================================================================
