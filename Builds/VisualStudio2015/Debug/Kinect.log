@@ -1,71 +1,17 @@
 ﻿  GuiComponent.cpp
-c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(84): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(75): warning C4244: 'argument': conversion from 'int' to 'u_short', possible loss of data
+c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(76): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
   c:\program files (x86)\windows kits\8.1\include\um\winsock2.h(1850): note: see declaration of 'inet_addr'
-c:\users\coduser\desktop\juce\modules\juce_opengl\geometry\juce_quaternion.h(79): warning C4459: declaration of 's' hides global declaration
-  c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(41): note: see declaration of 's'
-  c:\users\coduser\desktop\juce\modules\juce_opengl\geometry\juce_quaternion.h(77): note: while compiling class template member function 'juce::Matrix3D<float> juce::Quaternion<float>::getRotationMatrix(void) noexcept const'
-  c:\users\coduser\desktop\juce\modules\juce_opengl\geometry\juce_draggable3dorientation.h(107): note: see reference to function template instantiation 'juce::Matrix3D<float> juce::Quaternion<float>::getRotationMatrix(void) noexcept const' being compiled
-  c:\users\coduser\desktop\juce\modules\juce_opengl\geometry\juce_draggable3dorientation.h(119): note: see reference to class template instantiation 'juce::Quaternion<float>' being compiled
-c:\users\coduser\desktop\juce\modules\juce_core\text\juce_characterfunctions.h(277): warning C4459: declaration of 's' hides global declaration
-  c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(41): note: see declaration of 's'
-  c:\users\coduser\desktop\juce\modules\juce_core\text\juce_charpointer_utf32.h(339): note: see reference to function template instantiation 'IntType juce::CharacterFunctions::getIntValue<int,juce::CharPointer_UTF32>(const CharPointerType) noexcept' being compiled
-          with
-          [
-              IntType=int,
-              CharPointerType=juce::CharPointer_UTF32
-          ]
-c:\users\coduser\desktop\juce\modules\juce_graphics\native\juce_renderinghelpers.h(868): warning C4459: declaration of 's' hides global declaration
-  c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(41): note: see declaration of 's'
-  c:\users\coduser\desktop\juce\modules\juce_graphics\native\juce_renderinghelpers.h(866): note: while compiling class template member function 'void juce::RenderingHelpers::EdgeTableFillers::ImageFill<SrcPixelType,SrcPixelType,false>::clipEdgeTableLine(juce::EdgeTable &,int,int,int)'
-          with
-          [
-              SrcPixelType=juce::PixelAlpha
-          ]
-  c:\users\coduser\desktop\juce\modules\juce_graphics\native\juce_renderinghelpers.h(1762): note: see reference to function template instantiation 'void juce::RenderingHelpers::EdgeTableFillers::ImageFill<SrcPixelType,SrcPixelType,false>::clipEdgeTableLine(juce::EdgeTable &,int,int,int)' being compiled
-          with
-          [
-              SrcPixelType=juce::PixelAlpha
-          ]
-  c:\users\coduser\desktop\juce\modules\juce_graphics\native\juce_renderinghelpers.h(1759): note: see reference to class template instantiation 'juce::RenderingHelpers::EdgeTableFillers::ImageFill<SrcPixelType,SrcPixelType,false>' being compiled
-          with
-          [
-              SrcPixelType=juce::PixelAlpha
-          ]
-  c:\users\coduser\desktop\juce\modules\juce_graphics\native\juce_renderinghelpers.h(1652): note: see reference to function template instantiation 'void juce::RenderingHelpers::ClipRegions<SavedStateType>::EdgeTableRegion::straightClipImage<juce::PixelAlpha>(const juce::Image::BitmapData &,int,int,const SrcPixelType *)' being compiled
-          with
-          [
-              SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState,
-              SrcPixelType=juce::PixelAlpha
-          ]
-  c:\users\coduser\desktop\juce\modules\juce_graphics\native\juce_renderinghelpers.h(1652): note: see reference to function template instantiation 'void juce::RenderingHelpers::ClipRegions<SavedStateType>::EdgeTableRegion::straightClipImage<juce::PixelAlpha>(const juce::Image::BitmapData &,int,int,const SrcPixelType *)' being compiled
-          with
-          [
-              SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState,
-              SrcPixelType=juce::PixelAlpha
-          ]
-  c:\users\coduser\desktop\juce\modules\juce_graphics\native\juce_renderinghelpers.h(1635): note: while compiling class template member function 'juce::ReferenceCountedObjectPtr<juce::RenderingHelpers::ClipRegions<SavedStateType>::Base> juce::RenderingHelpers::ClipRegions<SavedStateType>::EdgeTableRegion::clipToImageAlpha(const juce::Image &,const juce::AffineTransform &,const juce::Graphics::ResamplingQuality)'
-          with
-          [
-              SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
-          ]
-  c:\users\coduser\desktop\juce\modules\juce_graphics\native\juce_renderinghelpers.h(2523): note: see reference to class template instantiation 'juce::RenderingHelpers::ClipRegions<SavedStateType>::EdgeTableRegion' being compiled
-          with
-          [
-              SavedStateType=juce::RenderingHelpers::SoftwareRendererSavedState
-          ]
-c:\users\coduser\desktop\juce\modules\juce_gui_extra\misc\juce_liveconstanteditor.h(185): warning C4459: declaration of 's' hides global declaration
-  c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(41): note: see declaration of 's'
-  c:\users\coduser\desktop\juce\modules\juce_gui_extra\misc\juce_liveconstanteditor.h(185): note: while compiling class template member function 'void juce::LiveConstantEditor::LiveValue<juce::String>::setStringValue(const juce::String &)'
-  c:\users\coduser\desktop\juce\modules\juce_gui_extra\misc\juce_liveconstanteditor.h(214): note: see reference to class template instantiation 'juce::LiveConstantEditor::LiveValue<juce::String>' being compiled
-  c:\users\coduser\desktop\juce\modules\juce_gui_extra\misc\juce_liveconstanteditor.h(240): note: see reference to function template instantiation 'juce::LiveConstantEditor::LiveValue<juce::String> &juce::LiveConstantEditor::ValueList::getValue<Type>(const char *,int,const Type &)' being compiled
-          with
-          [
-              Type=juce::String
-          ]
-  c:\users\coduser\desktop\juce\modules\juce_gui_extra\misc\juce_liveconstanteditor.h(245): note: see reference to function template instantiation 'juce::LiveConstantEditor::LiveValue<juce::String> &juce::LiveConstantEditor::getValue<juce::String>(const char *,int,const Type &)' being compiled
-          with
-          [
-              Type=juce::String
-          ]
+c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(260): warning C4996: 'juce::Button::setToggleState': was declared deprecated
+  c:\users\coduser\desktop\juce\modules\juce_gui_basics\buttons\juce_button.h(350): note: see declaration of 'juce::Button::setToggleState'
+c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(261): warning C4996: 'juce::Button::setToggleState': was declared deprecated
+  c:\users\coduser\desktop\juce\modules\juce_gui_basics\buttons\juce_button.h(350): note: see declaration of 'juce::Button::setToggleState'
+c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(262): warning C4996: 'juce::Button::setToggleState': was declared deprecated
+  c:\users\coduser\desktop\juce\modules\juce_gui_basics\buttons\juce_button.h(350): note: see declaration of 'juce::Button::setToggleState'
+c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(263): warning C4996: 'juce::Button::setToggleState': was declared deprecated
+  c:\users\coduser\desktop\juce\modules\juce_gui_basics\buttons\juce_button.h(350): note: see declaration of 'juce::Button::setToggleState'
+c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(622): warning C4244: 'argument': conversion from 'int' to 'u_short', possible loss of data
+c:\users\coduser\documents\github\kinectsender\source\guicomponent.cpp(617): warning C4996: 'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+  c:\program files (x86)\windows kits\8.1\include\um\winsock2.h(1850): note: see declaration of 'inet_addr'
   Kinect.vcxproj -> C:\Users\coduser\Documents\GitHub\KinectSender\Builds\VisualStudio2015\Debug\NewProject.exe
   Kinect.vcxproj -> Debug\\NewProject.pdb (Full PDB)

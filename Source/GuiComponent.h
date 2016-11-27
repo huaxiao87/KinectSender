@@ -27,6 +27,12 @@
 #include "resource.h"
 #include "kinect.h"
 #include <vector>
+#include <iostream>
+#include <stdio.h>
+#include <string>
+
+using namespace std;
+#define BUFLEN 512  //Max length of buffer
 
 //[/Headers]
 
@@ -41,8 +47,9 @@
                                                                     //[/Comments]
 */
 class GuiComponent  : public Component,
-                      public ButtonListener,
-					  public Thread
+                      public Thread,
+                      public TextEditor::Listener,
+                      public ButtonListener
 {
 public:
     //==============================================================================
@@ -52,6 +59,11 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void run();
+	void textEditorReturnKeyPressed(TextEditor &editor);
+	void update();
+	HRESULT InitializeDefaultSensor();
+	void GuiComponent::send_data_with_labels(Joint* joints);
+	void GuiComponent::send_data_without_labels(Joint* joints);
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -67,11 +79,45 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	bool send_relative = true;
+	ScopedPointer<bool> joints_availability = new bool[JointType_Count] { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+	ScopedPointer<bool> coordinates_availability = new bool[3]{ true, true, true };
+	int total_joints = 0;
+	long long int current_frame = 0;
+	char server[15]; //ip address of udp server
+	int port = 8888;   //The port on which to listen for incoming data
 
-	void update();
-	HRESULT InitializeDefaultSensor();
+	struct sockaddr_in si_other;
+	int s, slen = sizeof(si_other);
+	char buf[BUFLEN];
+	char message[BUFLEN];
+	WSADATA wsa;
 
-	ScopedPointer<bool> joints_availability;
+	const string joint_names[25]{ "SpineBase",
+		"SpineMid",
+		"Neck",
+		"Head",
+		"ShoulderLeft",
+		"ElbowLeft",
+		"WristLeft",
+		"HandLeft",
+		"ShoulderRight",
+		"ElbowRight",
+		"WristRight",
+		"HandRight",
+		"HipLeft",
+		"KneeLeft",
+		"AnkleLeft",
+		"FootLeft",
+		"HipRight",
+		"KneeRight",
+		"AnkleRight",
+		"FootRight",
+		"SpineShoulder",
+		"HandTipLeft",
+		"ThumbLeft",
+		"HandTipRight",
+		"ThumbRight" };
 	// Current Kinect
 	IKinectSensor*          m_pKinectSensor;
 	ICoordinateMapper*      m_pCoordinateMapper;
@@ -102,10 +148,10 @@ private:
     ScopedPointer<ToggleButton> ankleLeft;
     ScopedPointer<ToggleButton> hipRight;
     ScopedPointer<ToggleButton> kneeRight;
-    ScopedPointer<TextEditor> textEditor;
+    ScopedPointer<TextEditor> ip_editor;
     ScopedPointer<Label> label;
     ScopedPointer<Label> label2;
-    ScopedPointer<TextEditor> textEditor2;
+    ScopedPointer<TextEditor> port_editor;
     ScopedPointer<TextButton> textButton;
     ScopedPointer<TextButton> textButton2;
     ScopedPointer<TextButton> textButton3;
@@ -115,6 +161,11 @@ private:
     ScopedPointer<ToggleButton> thumbLeft;
     ScopedPointer<ToggleButton> handTipRight;
     ScopedPointer<ToggleButton> thumbRight;
+    ScopedPointer<ToggleButton> X;
+    ScopedPointer<ToggleButton> Y;
+    ScopedPointer<ToggleButton> Z;
+    ScopedPointer<ToggleButton> send_labels;
+    ScopedPointer<ToggleButton> send_relative_position;
     Image cachedImage_kinect2_png_1;
 
 

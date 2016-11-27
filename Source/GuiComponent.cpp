@@ -24,6 +24,7 @@
 #include <string>
 #include <kinect.h>
 #include <vector>
+#include <sstream>
 
 //[/Headers]
 
@@ -32,21 +33,14 @@
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 #define BODY_COUNT 6
-#define SERVER "127.0.0.1"  //ip address of udp server
 
-#define BUFLEN 512  //Max length of buffer
-#define PORT 8888   //The port on which to listen for incoming data
 
-struct sockaddr_in si_other;
-int s, slen = sizeof(si_other);
-char buf[BUFLEN];
-char message[BUFLEN];
-WSADATA wsa;
 
 using namespace std;
 
 template<class Interface>
 inline void SafeRelease(Interface *& pInterfaceToRelease);
+
 
 //[/MiscUserDefs]
 
@@ -58,9 +52,7 @@ GuiComponent::GuiComponent ():Thread("kinect")
 
 	//Initialize the default kinect sensor
 	InitializeDefaultSensor();
-
-	joints_availability = new bool[JointType_Count] {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-
+	strcpy(server, "127.0.0.1");
 	//Initialise winsock
 	printf("\nInitialising Winsock...");
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -80,8 +72,8 @@ GuiComponent::GuiComponent ():Thread("kinect")
 	//setup address structure
 	memset((char *)&si_other, 0, sizeof(si_other));
 	si_other.sin_family = AF_INET;
-	si_other.sin_port = htons(PORT);
-	si_other.sin_addr.S_un.S_addr = inet_addr(SERVER);
+	si_other.sin_port = htons(port);
+	si_other.sin_addr.S_un.S_addr = inet_addr(server);
 
     //[/Constructor_pre]
 
@@ -153,7 +145,7 @@ GuiComponent::GuiComponent ():Thread("kinect")
     footLeft->setButtonText (String());
     footLeft->addListener (this);
 
-    addAndMakeVisible (ankleLeft = new ToggleButton ("ankleeLeft"));
+    addAndMakeVisible (ankleLeft = new ToggleButton ("ankleLeft"));
     ankleLeft->setButtonText (String());
     ankleLeft->addListener (this);
 
@@ -165,14 +157,14 @@ GuiComponent::GuiComponent ():Thread("kinect")
     kneeRight->setButtonText (String());
     kneeRight->addListener (this);
 
-    addAndMakeVisible (textEditor = new TextEditor ("new text editor"));
-    textEditor->setMultiLine (false);
-    textEditor->setReturnKeyStartsNewLine (false);
-    textEditor->setReadOnly (false);
-    textEditor->setScrollbarsShown (false);
-    textEditor->setCaretVisible (true);
-    textEditor->setPopupMenuEnabled (true);
-    textEditor->setText (TRANS("127.0.0.1"));
+    addAndMakeVisible (ip_editor = new TextEditor ("ip_editor"));
+    ip_editor->setMultiLine (false);
+    ip_editor->setReturnKeyStartsNewLine (false);
+    ip_editor->setReadOnly (false);
+    ip_editor->setScrollbarsShown (false);
+    ip_editor->setCaretVisible (true);
+    ip_editor->setPopupMenuEnabled (true);
+    ip_editor->setText (TRANS("127.0.0.1"));
 
     addAndMakeVisible (label = new Label ("new label",
                                           TRANS("Taget IP:")));
@@ -190,14 +182,14 @@ GuiComponent::GuiComponent ():Thread("kinect")
     label2->setColour (TextEditor::textColourId, Colours::black);
     label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (textEditor2 = new TextEditor ("new text editor"));
-    textEditor2->setMultiLine (false);
-    textEditor2->setReturnKeyStartsNewLine (false);
-    textEditor2->setReadOnly (false);
-    textEditor2->setScrollbarsShown (false);
-    textEditor2->setCaretVisible (true);
-    textEditor2->setPopupMenuEnabled (true);
-    textEditor2->setText (TRANS("8888"));
+    addAndMakeVisible (port_editor = new TextEditor ("new text editor"));
+    port_editor->setMultiLine (false);
+    port_editor->setReturnKeyStartsNewLine (false);
+    port_editor->setReadOnly (false);
+    port_editor->setScrollbarsShown (false);
+    port_editor->setCaretVisible (true);
+    port_editor->setPopupMenuEnabled (true);
+    port_editor->setText (TRANS("8888"));
 
     addAndMakeVisible (textButton = new TextButton ("new button"));
     textButton->setButtonText (TRANS("Save"));
@@ -235,15 +227,40 @@ GuiComponent::GuiComponent ():Thread("kinect")
     thumbRight->setButtonText (String());
     thumbRight->addListener (this);
 
+    addAndMakeVisible (X = new ToggleButton ("X"));
+    X->addListener (this);
+
+    addAndMakeVisible (Y = new ToggleButton ("Y"));
+    Y->addListener (this);
+
+    addAndMakeVisible (Z = new ToggleButton ("Z"));
+    Z->addListener (this);
+
+    addAndMakeVisible (send_labels = new ToggleButton ("send_labels"));
+    send_labels->setButtonText (TRANS("Send labels"));
+    send_labels->addListener (this);
+
+    addAndMakeVisible (send_relative_position = new ToggleButton ("send_relative_position"));
+    send_relative_position->setButtonText (TRANS("Relative"));
+    send_relative_position->addListener (this);
+
     cachedImage_kinect2_png_1 = ImageCache::getFromMemory (kinect2_png, kinect2_pngSize);
 
     //[UserPreSize]
+
     //[/UserPreSize]
 
     setSize (600, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
+	ip_editor->addListener(this);
+	port_editor->addListener(this);
+	ip_editor->setInputRestrictions(15, juce::String("1234567890."));
+	X->setToggleState(coordinates_availability[0],false);
+	Y->setToggleState(coordinates_availability[1],false);
+	Z->setToggleState(coordinates_availability[2],false);
+	send_relative_position->setToggleState(send_relative, false);
     //[/Constructor]
 }
 
@@ -273,10 +290,10 @@ GuiComponent::~GuiComponent()
     ankleLeft = nullptr;
     hipRight = nullptr;
     kneeRight = nullptr;
-    textEditor = nullptr;
+    ip_editor = nullptr;
     label = nullptr;
     label2 = nullptr;
-    textEditor2 = nullptr;
+    port_editor = nullptr;
     textButton = nullptr;
     textButton2 = nullptr;
     textButton3 = nullptr;
@@ -286,6 +303,11 @@ GuiComponent::~GuiComponent()
     thumbLeft = nullptr;
     handTipRight = nullptr;
     thumbRight = nullptr;
+    X = nullptr;
+    Y = nullptr;
+    Z = nullptr;
+    send_labels = nullptr;
+    send_relative_position = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -307,10 +329,10 @@ void GuiComponent::paint (Graphics& g)
                        false);
 
     g.setColour (Colour (0xffbfbfbf));
-    g.fillRect (32, 348, 296, 68);
+    g.fillRect (32, 348, 312, 68);
 
     g.setColour (Colour (0xffbfbfbf));
-    g.fillRect (32, 428, 296, 84);
+    g.fillRect (32, 428, 312, 84);
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -341,10 +363,10 @@ void GuiComponent::resized()
     ankleLeft->setBounds (242, 284, 24, 24);
     hipRight->setBounds (157, 174, 24, 24);
     kneeRight->setBounds (138, 231, 24, 24);
-    textEditor->setBounds (48, 384, 120, 20);
+    ip_editor->setBounds (48, 384, 88, 20);
     label->setBounds (48, 360, 56, 20);
-    label2->setBounds (192, 360, 65, 20);
-    textEditor2->setBounds (192, 384, 64, 20);
+    label2->setBounds (144, 360, 65, 20);
+    port_editor->setBounds (144, 384, 64, 20);
     textButton->setBounds (48, 440, 120, 24);
     textButton2->setBounds (48, 472, 120, 24);
     textButton3->setBounds (192, 440, 120, 24);
@@ -354,7 +376,13 @@ void GuiComponent::resized()
     thumbLeft->setBounds (294, 66, 24, 24);
     handTipRight->setBounds (55, 52, 24, 24);
     thumbRight->setBounds (45, 65, 24, 24);
+    X->setBounds (208, 352, 40, 24);
+    Y->setBounds (208, 368, 40, 24);
+    Z->setBounds (208, 384, 40, 24);
+    send_labels->setBounds (248, 368, 88, 24);
+    send_relative_position->setBounds (248, 352, 88, 24);
     //[UserResized] Add your own custom resize handling here..
+
     //[/UserResized]
 }
 
@@ -466,7 +494,7 @@ void GuiComponent::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == kneeLeft)
     {
-        //[UserButtonCode_kneeLeft] -- add your button handler code here
+        //[UserButtonCode_kneeLeft] -- add your button handler code here..
 		joints_availability[JointType_KneeLeft] = kneeLeft->getToggleState();
         //[/UserButtonCode_kneeLeft]
     }
@@ -546,6 +574,35 @@ void GuiComponent::buttonClicked (Button* buttonThatWasClicked)
 		joints_availability[JointType_ThumbRight] = thumbRight->getToggleState();
         //[/UserButtonCode_thumbRight]
     }
+    else if (buttonThatWasClicked == X)
+    {
+        //[UserButtonCode_X] -- add your button handler code here..
+		coordinates_availability[0] = X->getToggleState();
+        //[/UserButtonCode_X]
+    }
+    else if (buttonThatWasClicked == Y)
+    {
+        //[UserButtonCode_Y] -- add your button handler code here..
+		coordinates_availability[1] = Y->getToggleState();
+        //[/UserButtonCode_Y]
+    }
+    else if (buttonThatWasClicked == Z)
+    {
+        //[UserButtonCode_Z] -- add your button handler code here..
+		coordinates_availability[2] = Z->getToggleState();
+        //[/UserButtonCode_Z]
+    }
+    else if (buttonThatWasClicked == send_labels)
+    {
+        //[UserButtonCode_send_labels] -- add your button handler code here..
+        //[/UserButtonCode_send_labels]
+    }
+    else if (buttonThatWasClicked == send_relative_position)
+    {
+        //[UserButtonCode_send_relative_position] -- add your button handler code here..
+		send_relative = send_relative_position->getToggleState();
+        //[/UserButtonCode_send_relative_position]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -554,6 +611,19 @@ void GuiComponent::buttonClicked (Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+void GuiComponent::textEditorReturnKeyPressed(TextEditor &editor) {
+	if (&editor == ip_editor) {
+		strcpy(server, ip_editor->getText().toStdString().c_str());
+		si_other.sin_addr.S_un.S_addr = inet_addr(server);
+	}
+	if (&editor == port_editor) {
+		stringstream convert(port_editor->getText().toStdString());
+		convert >> port;
+		si_other.sin_port = htons(port);
+	}
+
+
+}
 void GuiComponent::run() {
 	while (!threadShouldExit()) {
 		const MessageManagerLock lock(Thread::getCurrentThread());
@@ -605,19 +675,11 @@ void GuiComponent::update() {
 						if (SUCCEEDED(hr))
 						{
 							string tmp = "";
-
-							for (int joint_index = 0; joint_index < JointType_Count;joint_index++) {
-								if (joints_availability[joint_index] == true) {
-									tmp+= to_string(joints[joint_index].Position.X)+" ";
-								}
+							if (send_labels->getToggleState()) {
+								send_data_with_labels(joints);
 							}
-							strcpy(message, tmp.c_str());
-							/////////////////////////////////////////////////////////////////////////////////////////////
-							//send the data over UDP
-							if (sendto(s, message, strlen(message), 0, (struct sockaddr *) &si_other, slen) == SOCKET_ERROR)
-							{
-								printf("sendto() failed with error code : %d", WSAGetLastError());
-								exit(EXIT_FAILURE);
+							else {
+								send_data_without_labels(joints);
 							}
 						}
 					}
@@ -681,6 +743,75 @@ HRESULT GuiComponent::InitializeDefaultSensor() {
 		return hr;
 	}
 }
+void GuiComponent::send_data_with_labels(Joint* joints) {
+	string tmp = "";
+	current_frame++;
+	for (int joint_index = 0; joint_index < JointType_Count;joint_index++) {
+		total_joints++;
+		tmp += joint_names[joint_index] + " ";
+		if (joints_availability[joint_index]) {
+			if (coordinates_availability[0]) {
+				tmp += send_relative ? "X " + to_string(joints[joint_index].Position.X - joints[JointType_SpineBase].Position.X) + " " : "X " + to_string(joints[joint_index].Position.X) + " ";
+			}
+			else { tmp += "X NA "; }
+			if (coordinates_availability[1]) {
+				tmp += send_relative ? "Y " + to_string(joints[joint_index].Position.Y - joints[JointType_SpineBase].Position.Y) + " " : "Y " + to_string(joints[joint_index].Position.Y) + " ";
+			}
+			else { tmp += "Y NA "; }
+			if (coordinates_availability[2]) {
+				tmp += send_relative ? "Z " + to_string(joints[joint_index].Position.Z - joints[JointType_SpineBase].Position.Z) + " " : "Z " + to_string(joints[joint_index].Position.Z) + " ";
+			}
+			else { tmp += "Z NA "; }
+		}
+		else { tmp += joint_names[joint_index] + " X NA Y NA Z NA "; }
+		if (total_joints > 13) {
+			//append the current frame for synchronization
+			tmp += " " + to_string(current_frame);
+			strcpy(message, tmp.c_str());
+			//send the data over UDP
+			if (sendto(s, message, strlen(message), 0, (struct sockaddr *) &si_other, slen) == SOCKET_ERROR)
+			{
+				printf("sendto() failed with error code : %d", WSAGetLastError());
+				exit(EXIT_FAILURE);
+			}
+			tmp = "";
+			total_joints = 0;
+		}
+	}
+	strcpy(message, tmp.c_str());
+	//send the rest data
+	tmp += " " + to_string(current_frame);
+
+	if (sendto(s, message, strlen(message), 0, (struct sockaddr *) &si_other, slen) == SOCKET_ERROR)
+	{
+		printf("sendto() failed with error code : %d", WSAGetLastError());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void GuiComponent::send_data_without_labels(Joint* joints) {
+	string tmp = "";
+	for (int joint_index = 0; joint_index < JointType_Count;joint_index++) {
+		if (joints_availability[joint_index]) {
+			if (coordinates_availability[0]) {
+				tmp += send_relative ? to_string(joints[joint_index].Position.X - joints[JointType_SpineBase].Position.X) + " " : to_string(joints[joint_index].Position.X) + " ";
+			}
+			if (coordinates_availability[1]) {
+				tmp += send_relative ? to_string(joints[joint_index].Position.Y - joints[JointType_SpineBase].Position.Y) + " " : to_string(joints[joint_index].Position.Y) + " ";
+			}
+			if (coordinates_availability[2]) {
+				tmp += send_relative ? to_string(joints[joint_index].Position.Z - joints[JointType_SpineBase].Position.Z) + " " : to_string(joints[joint_index].Position.Z) + " ";
+			}
+		}
+	}
+	strcpy(message, tmp.c_str());
+	//send the data
+	if (sendto(s, message, strlen(message), 0, (struct sockaddr *) &si_other, slen) == SOCKET_ERROR)
+	{
+		printf("sendto() failed with error code : %d", WSAGetLastError());
+		exit(EXIT_FAILURE);
+	}
+}
 
 // Safe release for interfaces
 template<class Interface>
@@ -706,13 +837,14 @@ inline void SafeRelease(Interface *& pInterfaceToRelease)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="GuiComponent" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="600" initialHeight="400">
+                 parentClasses="public Component, public Thread, public TextEditor::Listener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="600"
+                 initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff">
     <IMAGE pos="180c 170c 320 316" resource="kinect2_png" opacity="1" mode="1"/>
-    <RECT pos="32 348 296 68" fill="solid: ffbfbfbf" hasStroke="0"/>
-    <RECT pos="32 428 296 84" fill="solid: ffbfbfbf" hasStroke="0"/>
+    <RECT pos="32 348 312 68" fill="solid: ffbfbfbf" hasStroke="0"/>
+    <RECT pos="32 428 312 84" fill="solid: ffbfbfbf" hasStroke="0"/>
   </BACKGROUND>
   <TOGGLEBUTTON name="neck" id="8356aa1113d0dff" memberName="neck" virtualName=""
                 explicitFocusOrder="0" pos="171 89 24 24" buttonText="" connectedEdges="0"
@@ -774,8 +906,8 @@ BEGIN_JUCER_METADATA
   <TOGGLEBUTTON name="kneeRight" id="6fc48b14fff2d19a" memberName="kneeRight"
                 virtualName="" explicitFocusOrder="0" pos="138 231 24 24" buttonText=""
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <TEXTEDITOR name="new text editor" id="7a826804c0c71d2e" memberName="textEditor"
-              virtualName="" explicitFocusOrder="0" pos="48 384 120 20" initialText="127.0.0.1"
+  <TEXTEDITOR name="ip_editor" id="7a826804c0c71d2e" memberName="ip_editor"
+              virtualName="" explicitFocusOrder="0" pos="48 384 88 20" initialText="127.0.0.1"
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
               caret="1" popupmenu="1"/>
   <LABEL name="new label" id="b88d6e763ea261dd" memberName="label" virtualName=""
@@ -784,12 +916,12 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="12"
          bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="ac2361070e676e03" memberName="label2" virtualName=""
-         explicitFocusOrder="0" pos="192 360 65 20" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="144 360 65 20" edTextCol="ff000000"
          edBkgCol="0" labelText="Taget port:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="12" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="new text editor" id="a60c02e9d8294d0b" memberName="textEditor2"
-              virtualName="" explicitFocusOrder="0" pos="192 384 64 20" initialText="8888"
+  <TEXTEDITOR name="new text editor" id="a60c02e9d8294d0b" memberName="port_editor"
+              virtualName="" explicitFocusOrder="0" pos="144 384 64 20" initialText="8888"
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
               caret="1" popupmenu="1"/>
   <TEXTBUTTON name="new button" id="3c8c57988450ad68" memberName="textButton"
@@ -818,6 +950,21 @@ BEGIN_JUCER_METADATA
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <TOGGLEBUTTON name="thumbRight" id="6b83bf3fae871de0" memberName="thumbRight"
                 virtualName="" explicitFocusOrder="0" pos="45 65 24 24" buttonText=""
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="X" id="e77ad180e252c425" memberName="X" virtualName=""
+                explicitFocusOrder="0" pos="208 352 40 24" buttonText="X" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="Y" id="df94b46e8c79b77a" memberName="Y" virtualName=""
+                explicitFocusOrder="0" pos="208 368 40 24" buttonText="Y" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="Z" id="cbdd79011962e0d1" memberName="Z" virtualName=""
+                explicitFocusOrder="0" pos="208 384 40 24" buttonText="Z" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="send_labels" id="a8f0c6b6e71f16e7" memberName="send_labels"
+                virtualName="" explicitFocusOrder="0" pos="248 368 88 24" buttonText="Send labels"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="send_relative_position" id="f28168535b70f1fa" memberName="send_relative_position"
+                virtualName="" explicitFocusOrder="0" pos="248 352 88 24" buttonText="Relative"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
